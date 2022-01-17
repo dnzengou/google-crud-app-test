@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_self">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+    <meta charset="utf-8">
+    <meta name="author" content="dez">
+    <title>Idebank CRUD app</title>
+    <meta charset="utf-8">
+    <base target="_top">
+    
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!--<link href="//cdn.muicss.com/mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
+
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="assets/img/favicons/site.webmanifest">
+    <link rel="mask-icon" href="assets/img/favicons/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    
+    <script>
+    function AddRow()
+    {idekategori, beskrivning, prioritet, namn, avdelning
+      document.getElementById("add_button").disabled = true;
+      var idekategori = document.getElementById("idekategori").value;
+      var beskrivning = document.getElementById("beskrivning").value;
+      var prioritet = document.getElementById("prioritet").value;
+      var namn = document.getElementById("namn").value;
+      var avdelning = document.getElementById("avdelning").value;
+      var email = document.getElementById("email").value;
+      if(idekategori != '' && beskrivning != '' && prioritet != '' && namn != '' && avdelning != '' && email != '')
+      {
+        google.script.run.withSuccessHandler(function(return_string) 
+        {
+          SearchRecords();
+          document.getElementById("add_button").disabled = false;
+        }).AddRecord(idekategori, beskrivning, prioritet, namn, avdelning, email);       
+      }
+      else
+      {
+        document.getElementById("display_error").innerHTML = "Please Enter All Information!";
+        document.getElementById("add_button").disabled = false;
+      }
+    }
+
+    function ClearRecord()
+    {
+        document.getElementById("idekategori").value = '';
+        document.getElementById("beskrivning").value = '';
+        document.getElementById("prioritet").value = '';
+        document.getElementById("namn").value = '';
+        document.getElementById("avdelning").value = '';
+        document.getElementById("email").value = '';
+        document.getElementById("display_error").innerHTML = "";
+    }
+
+    function UpdateRecord(row_number)
+    {
+      document.getElementById("update_button"+row_number).disabled = true;
+      var record_id = document.getElementById("up_record_id"+row_number).value;
+      var idekategori = document.getElementById("up_idekategori"+row_number).value;
+      var beskrivning = document.getElementById("up_beskrivning"+row_number).value;
+      var prioritet = document.getElementById("up_prioritet"+row_number).value;
+      var namn = document.getElementById("up_namn"+row_number).value;
+      var avdelning = document.getElementById("up_avdelning"+row_number).value;
+      var email = document.getElementById("up_email"+row_number).value;
+
+      google.script.run.withSuccessHandler(function(return_string) 
+      {
+          document.getElementById("update_button"+row_number).disabled = false;
+      }).UpdateRecord(record_id, idekategori, beskrivning, prioritet, namn, avdelning, email);
+    }
+
+    function DeleteRecord(row_number)
+    {
+
+      var record_id = document.getElementById("up_record_id"+row_number).value;
+
+      google.script.run.withSuccessHandler(function(return_string) 
+      {
+        if(return_string == 'SUCCESS')
+        {
+          document.getElementById('mainTable').deleteRow(document.getElementById('ROWNUMBER:'+row_number).rowIndex); 
+        }
+      }).DeleteRecord(record_id);
+    }
+
+    function SearchRecords() 
+    {
+      var idekategori = document.getElementById("idekategori").value;
+      var beskrivning = document.getElementById("beskrivning").value;
+      var prioritet = document.getElementById("prioritet").value;
+      var namn = document.getElementById("namn").value;
+      var avdelning = document.getElementById("avdelning").value;
+      var email = document.getElementById("email").value;
+      var row_number = 0;
+
+      google.script.run.withSuccessHandler(function(ar) 
+      {
+
+        console.log(ar);
+        var displayTable = '<form>';
+        displayTable += '<table class=\"table\" id=\"mainTable\" >';
+        displayTable += "<tr>";
+        displayTable += "<th>Idekategori</th>";
+        displayTable += "<th>Beskrivning</th>";
+        displayTable += "<th>Prioritet</th>";
+        displayTable += "<th>Email</th>";
+        displayTable += "<th></th>";
+        displayTable += "</tr>";
+
+        ar.forEach(function(item, index) 
+        {
+          displayTable += "<tr id=\"ROWNUMBER:"+ row_number +"\" >";
+          displayTable += "<td><div class=\"form-row\"><div class=\"form-group col-md-12\" ><label for=\"up_idekategori\">Idekategori</label>  ";
+          displayTable += "<input type=\"text\" id=\"up_idekategori"+ row_number +"\" value=\""+item[1]+"\" class=\"form-control\" /> ";
+          displayTable += "<input type=\"hidden\" id=\"up_record_id"+ row_number +"\" value=\""+item[0]+"\" /></div></div> ";
+          displayTable += "<div class=\"form-row\"><div class=\"form-group col-md-12\"><label for=\"up_beskrivning\">Beskrivning</label> ";
+          displayTable += "<input type=\"text\" id=\"up_beskrivning"+ row_number +"\" value=\""+item[2]+"\" class=\"form-control\" /></div></div></td> ";
+          displayTable += "<td><div class=\"form-row\"><div class=\"form-group col-md-12\"><label for=\"up_prioritet\">Prioritet</label> ";
+          displayTable += "<input type=\"text\" id=\"up_prioritet"+ row_number +"\" value=\""+item[3]+"\" class=\"form-control\" /></div></div> ";
+          displayTable += "<div class=\"form-row\"><div class=\"form-group col-md-6\"><label for=\"up_namn\">namn</label> "; 
+          displayTable += "<input type=\"text\" id=\"up_namn"+ row_number +"\" value=\""+item[4]+"\" class=\"form-control\" /></div> ";
+          displayTable += "<div class=\"form-group col-md-4\"><label for=\"up_avdelning\">avdelning</label> ";
+          displayTable += "<input type=\"text\" id=\"up_avdelning"+ row_number +"\" value=\""+item[5]+"\" class=\"form-control\" /></div> ";
+          displayTable += "<td><div class=\"form-row\"><div class=\"form-group col-md-12\" ><label for=\"up_email\">Email</label> ";
+          displayTable += "<input type=\"text\" id=\"up_email"+ row_number +"\" value=\""+item[6]+"\" class=\"form-control\" /></div></div></td> ";
+          displayTable += "<td><div style=\"padding: 5px\"> ";
+          displayTable += "<input type=\"button\" id=\"update_button"+ row_number +"\" value=\"Update\" class=\"btn btn-primary\" ";
+          displayTable += "onclick=\"UpdateRecord("+row_number+")\" /></div> ";
+          displayTable += "<div style=\"padding: 5px\" > ";
+          displayTable += "<input type=\"button\" value=\"Delete\" id=\"delete_button"+ row_number +"\"  class=\"btn btn-primary\" ";
+          displayTable += "onclick=\"DeleteRecord("+row_number+")\" /></div> ";
+          displayTable += "</td>";
+          displayTable += "</tr>";
+          row_number++;    
+        });
+
+        displayTable += '</table></form>';     
+        document.getElementById("rowdata").innerHTML = displayTable;
+
+      }).searchRecords(idekategori, beskrivning, prioritet, namn, avdelning, email);
+      
+    }
+    </script>
+  </head>
+  <body>
+    
+    <div class="jumbotron" style="font-family:Arial; background-color:transparent; min-height:100%; min-height:100%; background-size:cover; background: url('http://elektrofabriken.se/wp-content/uploads/2016/02/Sahlgrenska.jpg') no-repeat center center fixed;">
+    <div class="container text-center">
+      <b>Idébank CRUD app</b>
+      <br>
+
+  <form>
+  <div class="form-row">
+  <div class="form-group col-md-3">
+  <label for="idekategori">Idékategori</label>
+  <input type="text" id="idekategori" class="form-control" />
+  </div>
+  <div class="form-group col-md-6">
+  <label for="beskrivning">Beskrivning</label>
+  <input type="text" id="beskrivning" class="form-control" />
+  </div> 
+  </div>
+  <div class="form-row">
+  <div class="form-group col-md-2">
+  <label for="prioritet">Prioritet</label>
+  <input type="text" id="prioritet" class="form-control" />
+  </div> 
+  </div>
+  <div class="form-row">
+  <div class="form-group col-md-3">
+  <label for="namn">Namn</label>
+  <input type="text" id="namn" class="form-control" />
+  </div> 
+  <div class="form-group col-md-3">
+  <label for="avdelning">Avdelning</label>
+  <input type="text" id="avdelning" class="form-control" />
+  </div>
+  <div class="form-row">
+  <div class="form-group col-md-auto">
+  <label for="email" >Email</label>
+  <input type="text" id="email" class="form-control "/>
+  </div>
+  </div>
+  <div class="form-group col-md-6">
+  <input type="button" value="Search" class="btn btn-primary" onclick="SearchRecords()" />
+  <input type="button" value="Add Record" class="btn btn-primary" onclick="AddRow()" id="add_button" />
+  <input type="button" value="Clear Record" class="btn btn-primary" onclick="ClearRecord()" />
+  <div id="display_error" style="color: red" ></div>
+  </div>
+  </form> 
+  <div id="rowdata"></div>
+
+    </div>
+    </div>
+
+  </body>
+</html>
